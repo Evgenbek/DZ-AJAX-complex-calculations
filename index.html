@@ -1,11 +1,97 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-</head>
-<body>
     
+    <style>
+        .spinner_hidden[class] {
+            position: absolute;
+            top: -10000px;
+        }
+
+        .error {
+            color: rgb(193, 72, 97);
+        }
+       
+        .wrapper-form {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .summa_button {
+            color: #0004ff; 
+        }
+
+        .hidden {
+            display: none;
+        }
+
+    </style>
+</head>
+
+<body>
+        <div class="wrapper-form">
+            <input  name="first" class="input-one" type="number" placeholder="первое  число"><i class="fa-solid fa-plus"></i>
+            <input  name="second"  class="input-two" type="number" placeholder="второе  число"><i class="fa-solid fa-equals"></i>
+            <h3 class="result"></h3>
+        </div>
+        <button class="button summa_button"><i
+                class="fa-solid fa-spinner fa-spin spinner spinner_hidden"></i> сложить числа</button>
+        <button class="button reset_button hidden"><i
+                class="fa-solid fa-spinner fa-spin spinner spinner_hidden"></i>сбросить</button>
+    <h2 class="error"></h2>
+
+    <script src="https://kit.fontawesome.com/80d0029610.js" crossorigin="anonymous"></script>
+    <script>
+        const inputOneNumber = document.querySelector('.input-one');
+        const inputTwoNumber = document.querySelector('.input-two');
+        const summaButtonBlock = document.querySelector('.summa_button');
+        const resetButtonBlock= document.querySelector('.reset_button');
+        const resultBlock = document.querySelector('.result');
+        const errorBlock = document.querySelector('.error');
+        const spinnerBlock = document.querySelector('.spinner');
+
+        resetButtonBlock.addEventListener('click', (event) => {
+            inputOneNumber.value = '';
+            inputTwoNumber.value = '';
+            resultBlock.textContent = '';
+            resetButtonBlock.classList.add('hidden');
+        })
+
+        summaButtonBlock.addEventListener('click', (event) => {
+            summaButtonBlock.setAttribute('disabled', true);
+            spinnerBlock.classList.remove('spinner_hidden');
+            errorBlock.classList.add('hidden');
+            errorBlock.textContent = '';
+            resetButtonBlock.classList.remove('hidden');
+           
+            const numberOne = inputOneNumber.value
+            const numberTwo = inputTwoNumber.value
+
+            fetch(`http://localhost:3000/?first=${numberOne}&second=${numberTwo}`)
+                .then(response => {
+                    if (response.status !== 200) {
+                        throw new Error(`Status ${response.status}: ${response.statusText}`)
+                    }
+                    return response.json()
+                })
+                .then((data) => {
+                    resultBlock.classList.remove('hidden');
+                    resultBlock.textContent = data.result;
+                })
+                .catch((error) => {
+
+                    errorBlock.textContent = error.message ? error.message : error;
+                })
+                .finally(() => {
+                    summaButtonBlock.removeAttribute('disabled');
+                    spinnerBlock.classList.add('spinner_hidden');
+                });
+        });
+    </script>
 </body>
 </html>
